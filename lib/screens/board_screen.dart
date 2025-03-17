@@ -15,7 +15,7 @@ class BoardScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: 5, // Replace with actual task count
+        itemCount: 0,
         itemBuilder: (context, index) {
           return Card(
             elevation: 4,
@@ -25,7 +25,7 @@ class BoardScreen extends StatelessWidget {
             ),
             child: ListTile(
               title: Text('Task ${index + 1}'),
-              subtitle: Text('Due: 2023-10-${index + 1}'),
+              subtitle: Text('Due: 2025-05-${index + 1}'),
               trailing: const Icon(Icons.arrow_forward),
               onTap: () {
                 Navigator.push(
