@@ -1,22 +1,52 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart';
-import 'db_helper.dart';
+import 'package:task_manager_app/screens/home_screen.dart';
+import 'package:task_manager_app/screens/register_screen.dart';
+import 'screens/login_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await DBHelper.initDB(); // Initialize the database
-  runApp(MyApp());
+void main() {
+  runApp(const TaskManagerApp());
 }
 
-class MyApp extends StatelessWidget {
+class TaskManagerApp extends StatelessWidget {
+  const TaskManagerApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Task Manager',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[100],
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
       ),
-      home: RegisterScreen(), // Start with the register screen
+      // 🛠️ Move these OUT of theme data!
+      home: const LoginScreen(),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

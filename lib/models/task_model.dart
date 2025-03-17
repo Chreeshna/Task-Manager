@@ -1,27 +1,31 @@
 class Task {
   final int? id;
-  final int listId; // Updated to be list-based
+  final int boardId;
+  final int listId;
   final String title;
   final String description;
   final String dueDate;
   final String priority;
-  final String assignedTo; // New field for task assignee
-  final bool isDone;
+  final String assignedTo;
+  bool isDone;
 
   Task({
     this.id,
+    required this.boardId,
     required this.listId,
     required this.title,
     required this.description,
     required this.dueDate,
     required this.priority,
     required this.assignedTo,
-    this.isDone = false,
+    required this.isDone,
   });
 
+  // Convert Task to Map for insertion into DB
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'boardId': boardId,
       'listId': listId,
       'title': title,
       'description': description,
@@ -32,9 +36,11 @@ class Task {
     };
   }
 
-  factory Task.fromMap(Map<String, dynamic> map) {
+  // Convert Map to Task object
+  static Task fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
+      boardId: map['boardId'],
       listId: map['listId'],
       title: map['title'],
       description: map['description'],

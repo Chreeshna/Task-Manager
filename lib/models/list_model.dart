@@ -10,10 +10,6 @@ class ListModel {
   }
 
   factory ListModel.fromMap(Map<String, dynamic> map) {
-    return ListModel(
-      id: map['id'],
-      boardId: map['boardId'],
-      name: map['name'],
-    );
+    return ListModel(id: map['id'], boardId: map['boardId'], name: map['name']);
   }
 }
