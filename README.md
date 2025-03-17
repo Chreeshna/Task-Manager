@@ -1,3 +1,3 @@
-# Task-Manager (in-progress)
+# Task-Manager
 
 Just a simple project
