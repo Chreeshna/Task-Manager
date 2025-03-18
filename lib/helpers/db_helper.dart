@@ -74,9 +74,10 @@ class DBHelper {
     final db = await database;
     final result = await db.query(
       'users',
-      where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
+      where: 'LOWER(username) = LOWER(?) AND password = ?',
+      whereArgs: [username.trim(), password.trim()],
     );
+    print('Login Query Result: $result'); // Debug output
     return result.isNotEmpty ? result.first : null;
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
@@ -12,13 +13,42 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
-  void _login() {
-    // Simulate login logic
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
+  // Function to handle login logic
+  Future<void> _login() async {
+    String username = _usernameController.text.trim();
+    String password = _passwordController.text.trim();
+
+    print('Username: $username, Password: $password'); // Debugging line
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter both username and password'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    String? savedUsername = prefs.getString('username');
+    String? savedPassword = prefs.getString('password');
+
+    if (username == savedUsername && password == savedPassword) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid username or password'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
   @override
@@ -27,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade300, Colors.blue.shade700],
+            colors: [Colors.purple.shade300, Colors.deepPurple.shade700],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -36,7 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Card(
-              elevation: 8,
+              elevation: 10,
+              color: Colors.white.withOpacity(0.9),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -48,8 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'Welcome Back!',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -57,25 +89,53 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _usernameController,
                       decoration: const InputDecoration(
                         labelText: 'Username',
-                        prefixIcon: Icon(Icons.person),
+                        prefixIcon:
+                            Icon(Icons.person, color: Colors.deepPurple),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon:
+                            const Icon(Icons.lock, color: Colors.deepPurple),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.deepPurple,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                        border: const OutlineInputBorder(),
                       ),
+                      onSubmitted: (_) => _login(),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _login,
+                      onPressed: () {
+                        FocusScope.of(context).unfocus(); // Close keyboard
+                        _login();
+                      },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
+                        backgroundColor: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Login'),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextButton(
@@ -87,7 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: const Text('Don\'t have an account? Register'),
+                      child: const Text(
+                        'Don\'t have an account? Register',
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
                     ),
                   ],
                 ),

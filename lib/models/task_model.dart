@@ -1,12 +1,12 @@
 class Task {
-  final int? id;
-  final int boardId;
-  final int listId;
-  final String title;
-  final String description;
-  final String dueDate;
-  final String priority;
-  final String assignedTo;
+  int? id;
+  int boardId;
+  int listId;
+  String title;
+  String description;
+  String dueDate;
+  String priority;
+  String assignedTo;
   bool isDone;
 
   Task({
@@ -21,7 +21,7 @@ class Task {
     required this.isDone,
   });
 
-  // Convert Task to Map for insertion into DB
+  // Convert a Task into a map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -32,12 +32,12 @@ class Task {
       'dueDate': dueDate,
       'priority': priority,
       'assignedTo': assignedTo,
-      'isDone': isDone ? 1 : 0,
+      'isDone': isDone ? 1 : 0, // store boolean as integer
     };
   }
 
-  // Convert Map to Task object
-  static Task fromMap(Map<String, dynamic> map) {
+  // Convert a map into a Task
+  factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
       boardId: map['boardId'],
@@ -47,7 +47,7 @@ class Task {
       dueDate: map['dueDate'],
       priority: map['priority'],
       assignedTo: map['assignedTo'],
-      isDone: map['isDone'] == 1,
+      isDone: map['isDone'] == 1, // convert back from integer
     );
   }
 }
