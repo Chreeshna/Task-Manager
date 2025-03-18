@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 import '../helpers/db_helper.dart';
 import '../models/task_model.dart';
 
 class TaskScreen extends StatefulWidget {
-  final int listId;
+  final int? listId; // Make listId nullable
+  final String boardId; //BoardId
 
-  const TaskScreen({super.key, required this.listId});
+  const TaskScreen({super.key, required this.listId, required this.boardId});
 
   @override
   State<TaskScreen> createState() => _TaskScreenState();
@@ -23,7 +25,8 @@ class _TaskScreenState extends State<TaskScreen> {
   // Function to load tasks from the database
   void _loadTasks() async {
     final db = DBHelper(); // Singleton instance
-    final List<Task> loadedTasks = await db.getTasks(widget.listId);
+    final List<Task> loadedTasks =
+        await db.getTasks(widget.listId ?? 0); // Provide default value if null
     if (mounted) {
       setState(() {
         tasks = loadedTasks;
@@ -81,7 +84,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 },
                 child: Text(dueDate == null
                     ? 'Pick Due Date'
-                    : 'Due: ${dueDate!.toLocal()}'.split(' ')[0]),
+                    : 'Due: ${DateFormat('yyyy-MM-dd').format(dueDate!)}'),
               ),
               TextField(
                 decoration:
@@ -100,8 +103,8 @@ class _TaskScreenState extends State<TaskScreen> {
               onPressed: () async {
                 if (titleController.text.isNotEmpty) {
                   final newTask = Task(
-                    id: existingTask?.id ?? null,
-                    listId: widget.listId, // Only associate with listId
+                    id: existingTask?.id,
+                    listId: widget.listId ?? 0, // Provide default value
                     title: titleController.text,
                     description: descriptionController.text,
                     dueDate: dueDate?.toLocal().toString().split(' ')[0] ??
@@ -109,6 +112,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     priority: priority,
                     assignedTo: assignee ?? 'Unassigned',
                     isDone: existingTask?.isDone ?? false,
+                    boardId: widget.boardId, // Pass the boardId
                   );
                   final db = DBHelper();
                   if (existingTask == null) {
@@ -119,6 +123,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   if (mounted) {
                     _loadTasks(); // Reload tasks after creating or updating
                   }
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 }
               },
@@ -174,42 +179,34 @@ class _TaskScreenState extends State<TaskScreen> {
               itemBuilder: (context, index) {
                 final task = tasks[index];
                 return Card(
-                  color: _getPriorityColor(task.priority),
-                  elevation: 2,
-                  margin: const EdgeInsets.all(8),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
-                    title: Text(
-                      task.title,
-                      style: TextStyle(
-                        decoration:
-                            task.isDone ? TextDecoration.lineThrough : null,
+                    title: Text(task.title),
+                    subtitle: Text(task.description),
+                    trailing: IconButton(
+                      icon: Icon(
+                        task.isDone
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        color: task.isDone ? Colors.green : Colors.grey,
                       ),
+                      onPressed: () => _toggleComplete(task),
                     ),
-                    subtitle: Text(
-                        'Priority: ${task.priority} | Due: ${task.dueDate} | Assigned: ${task.assignedTo}'),
-                    leading: Checkbox(
-                      value: task.isDone,
-                      onChanged: (value) => _toggleComplete(task),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showTaskDialog(task),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteTask(task.id!),
-                        ),
-                      ],
-                    ),
+                    onTap: () =>
+                        _showTaskDialog(task), // Open dialog for editing
+                    onLongPress: () =>
+                        _deleteTask(task.id!), // Delete task on long press
+                    tileColor: _getPriorityColor(task.priority),
                   ),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showTaskDialog(null),
+        onPressed: () => _showTaskDialog(null), // Show dialog for new task
         child: const Icon(Icons.add),
       ),
     );

@@ -73,7 +73,7 @@ class _BoardScreenState extends State<BoardScreen> {
                         MaterialPageRoute(
                           builder: (context) => TaskScreen(
                             listId: index,
-                            boardId: 1,
+                            boardId: 'someId', // Only pass listId
                           ),
                         ),
                       );
